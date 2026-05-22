@@ -1,0 +1,6 @@
+flask
+qrcode
+opencv-python
+pandas
+Pillow
+Werkzeug
