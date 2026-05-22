@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Payment Page</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .payment-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+        }
+        
+        h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
+        }
+        
+        .payment-info {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+        
+        .amount {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 15px 0;
+        }
+        
+        .customer-name {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .payment-methods {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        
+        .payment-method {
+            padding: 15px 25px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            min-width: 120px;
+        }
+        
+        .payment-method:hover, .payment-method.selected {
+            border-color: #4CAF50;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        
+        .pay-btn {
+            background-color: #4CAF50;
+            color: white;
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+        
+        .pay-btn:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+        }
+        
+        .back-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .back-btn:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+        }
+        
+        .payment-note {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="payment-card">
+        <h2>Payment Gateway</h2>
+        
+        <div class="payment-info">
+            <div class="customer-name">Customer: <strong>{{ name }}</strong></div>
+            <div class="amount">Balance: Rs. {{ amount }}</div>
+            <div class="fine" style="font-size: 24px; margin: 15px 0;">
+                Fine: Rs. {{ fine }}
+                <button class="btn pay-btn" style="width: auto; padding: 8px 16px; margin-left: 10px;" onclick="payFine()">Pay Fine</button>
+            </div>
+            
+            <div class="transaction-controls" style="margin-top: 20px; padding: 15px; background: #f5f5f5; border-radius: 8px;">
+                <div style="margin-bottom: 15px;">
+                    <input type="number" id="sendAmount" placeholder="Enter amount to send" style="padding: 8px; width: 200px; margin-right: 10px;">
+                    <button class="btn pay-btn" style="width: auto; padding: 8px 16px;" onclick="sendAmount()">Send</button>
+                </div>
+                <div>
+                    <input type="number" id="receiveAmount" placeholder="Enter amount to receive" style="padding: 8px; width: 200px; margin-right: 10px;">
+                    <button class="btn pay-btn" style="width: auto; padding: 8px 16px;" onclick="receiveAmount()">Receive</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="payment-methods">
+            <div class="payment-method" onclick="selectMethod(this)">Credit Card</div>
+            <div class="payment-method" onclick="selectMethod(this)">Debit Card</div>
+            <div class="payment-method" onclick="selectMethod(this)">UPI</div>
+            <div class="payment-method" onclick="selectMethod(this)">Net Banking</div>
+        </div>
+        
+        <div class="button-container">
+            <button class="btn pay-btn" onclick="simulatePayment()">Pay Now</button>
+            <button class="btn back-btn" onclick="location.href='{{ url_for('scan_qr') }}'">Cancel</button>
+        </div>
+        
+        <p class="payment-note">This is a simulation. No actual payment will be processed.</p>
+    </div>
+    
+    <script>
+        function selectMethod(element) {
+            // Remove 'selected' class from all methods
+            var methods = document.querySelectorAll('.payment-method');
+            for (var i = 0; i < methods.length; i++) {
+                methods[i].classList.remove('selected');
+            }
+            
+            // Add 'selected' class to clicked method
+            element.classList.add('selected');
+        }
+        
+        function simulatePayment() {
+            var selected = document.querySelector('.payment-method.selected');
+            if (!selected) {
+                alert('Please select a payment method!');
+                return;
+            }
+            
+            // Show loading animation (could be improved)
+            var payBtn = document.querySelector('.pay-btn');
+            payBtn.textContent = 'Processing...';
+            payBtn.disabled = true;
+            
+            // Simulate payment processing
+            setTimeout(function() {
+                alert('Payment successful! Thank you for your payment.');
+                window.location.href = '{{ url_for('scan_qr') }}';
+            }, 2000);
+        }
+        
+        function payFine() {
+            let currentAmount = parseFloat('{{ amount }}');
+            let fineAmount = parseFloat('{{ fine }}');
+            
+            if (currentAmount >= fineAmount) {
+                // Create form data
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{{ url_for("payment_page") }}';
+                
+                // Add form fields
+                const fields = {
+                    'name': '{{ name }}',
+                    'amount': currentAmount,
+                    'fine': fineAmount,
+                    'payment_type': 'fine'
+                };
+                
+                for (const [key, value] of Object.entries(fields)) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = key;
+                    input.value = value;
+                    form.appendChild(input);
+                }
+                
+                // Submit form
+                document.body.appendChild(form);
+                form.submit();
+            } else {
+                alert('Insufficient balance to pay fine!');
+            }
+        }
+        
+        function updateBalanceDisplay(newBalance) {
+            document.querySelector('.amount').textContent = 'Balance: Rs. ' + newBalance.toFixed(2);
+            // Update fine display if needed
+            let fineAmount = parseFloat('{{ fine }}');
+            document.querySelector('.fine').innerHTML = `Fine: Rs. ${fineAmount.toFixed(2)} 
+                <button class="btn pay-btn" style="width: auto; padding: 8px 16px; margin-left: 10px;" onclick="payFine()">Pay Fine</button>`;
+        }
+        
+        function sendAmount() {
+            let currentAmount = parseFloat('{{ amount }}');
+            let sendAmt = parseFloat(document.getElementById('sendAmount').value);
+            
+            if (!sendAmt || sendAmt <= 0) {
+                alert('Please enter a valid amount!');
+                return;
+            }
+            
+            if (currentAmount >= sendAmt) {
+                // Update balance
+                let newBalance = currentAmount - sendAmt;
+                updateBalanceDisplay(newBalance);
+                
+                // Simulate send processing
+                setTimeout(function() {
+                    alert('Amount sent successfully!');
+                    window.location.href = '{{ url_for('scan_qr') }}';
+                }, 1000);
+            } else {
+                alert('Insufficient balance!');
+            }
+        }
+        
+        function receiveAmount() {
+            let currentAmount = parseFloat('{{ amount }}');
+            let receiveAmt = parseFloat(document.getElementById('receiveAmount').value);
+            
+            if (!receiveAmt || receiveAmt <= 0) {
+                alert('Please enter a valid amount!');
+                return;
+            }
+            
+            // Update balance
+            let newBalance = currentAmount + receiveAmt;
+            updateBalanceDisplay(newBalance);
+            
+            // Simulate receive processing
+            setTimeout(function() {
+                alert('Amount received successfully!');
+                window.location.href = '{{ url_for('scan_qr') }}';
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

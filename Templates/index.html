@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>QR Code System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .container {
+            text-align: center;
+            padding: 40px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .login-button {
+            padding: 20px 40px;
+            font-size: 18px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .user-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .admin-btn {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .login-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>QR Code Management System</h1>
+        <div class="button-container">
+            <button onclick="window.location.href='{{ url_for('user_login_page') }}'" class="login-button user-btn">
+                User Login
+            </button>
+            <button onclick="window.location.href='{{ url_for('admin_login_page') }}'" class="login-button admin-btn">
+                Admin Login
+            </button>
+        </div>
+    </div>
+</body>
+</html>

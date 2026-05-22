@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate QR Code</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        .generate-container {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .generate-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 500px;
+            transition: transform 0.3s ease;
+        }
+
+        .generate-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e1e1;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            border-color: #4CAF50;
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.2);
+        }
+
+        .btn {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+
+        .btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .qr-container {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1rem;
+            border: 2px dashed #4CAF50;
+            border-radius: 10px;
+        }
+
+        .qr-container img {
+            max-width: 200px;
+            margin: 1rem 0;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.2rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+        #qrcode {
+            margin: 20px auto;
+            text-align: center;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 10px 0;
+            color: #666;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .nav-btn {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .nav-btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .file-input {
+            position: relative;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        
+        .file-input-label {
+            display: inline-block;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .file-input-label:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .file-input input[type=file] {
+            position: absolute;
+            font-size: 100px;
+            right: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        
+        .file-input-label {
+            display: inline-block;
+            padding: 8px 12px;
+            background-color: #e9ecef;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .selected-files {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .alert {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .alert-success {
+            background-color: #dff0d8;
+            border: 1px solid #d6e9c6;
+            color: #3c763d;
+        }
+        
+        .alert-danger {
+            background-color: #f2dede;
+            border: 1px solid #ebccd1;
+            color: #a94442;
+        }
+    </style>
+</head>
+<body>
+    <div class="generate-container">
+        <div class="generate-card">
+            <h2>Generate QR Code</h2>
+            
+            <div class="nav-buttons">
+                <a href="{{ url_for('index') }}" class="nav-btn">Home</a>
+                <a href="{{ url_for('logout') }}" class="nav-btn">Logout</a>
+            </div>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" enctype="multipart/form-data" action="{{ url_for('generate_qr') }}">
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" name="name" id="name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="amount">Amount:</label>
+                    <input type="text" name="amount" id="amount" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="fine">Fine:</label>
+                    <input type="text" name="fine" id="fine" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="upload_files">Upload Files:</label>
+                    <div class="file-input">
+                        <label class="file-input-label">Choose Files</label>
+                        <input type="file" name="upload_files" id="upload_files" multiple onchange="updateFileList()">
+                    </div>
+                    <div class="selected-files" id="selectedFiles">No files selected</div>
+                </div>
+                <button type="submit" class="btn">Generate QR</button>
+            </form>
+
+            {% if qr_code %}
+            <div class="qr-container">
+                <h3>Generated QR Code:</h3>
+                <img src="{{ url_for('static', filename=qr_code.replace('static/', '')) }}" alt="QR Code">
+                <p>Scan this QR code to view details for: <strong>{{ user_data.name }}</strong></p>
+                <p>Amount: <strong>Rs. {{ user_data.amount }}</strong></p>
+                <p>Fine: <strong>Rs. {{ user_data.fine }}</strong></p>
+                <button class="btn" onclick="printQR()">Download QR Code</button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        function updateFileList() {
+            const input = document.getElementById('upload_files');
+            const fileList = document.getElementById('selectedFiles');
+            
+            if (input.files.length > 0) {
+                let fileNames = [];
+                for (let i = 0; i < input.files.length; i++) {
+                    fileNames.push(input.files[i].name);
+                }
+                fileList.textContent = fileNames.join(', ');
+            } else {
+                fileList.textContent = 'No files selected';
+            }
+        }
+
+        function printQR() {
+            const qrImg = document.querySelector('.qr-container img').src;
+            const name = "{% if user_data %}{{ user_data.name }}{% else %}{% endif %}";
+            const amount = "{% if user_data %}{{ user_data.amount }}{% else %}{% endif %}";
+            const fine = "{% if user_data %}{{ user_data.fine }}{% else %}{% endif %}";
+            
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(
+                '<html>' +
+                '<head>' +
+                '<title>Print QR Code - ' + name + '</title>' +
+                '<style>' +
+                'body { font-family: Arial, sans-serif; text-align: center; }' +
+                '.container { margin: 20px auto; max-width: 400px; }' +
+                'img { max-width: 300px; }' +
+                '.details { margin: 20px 0; padding: 15px; background: #f9f9f9; border-radius: 8px; }' +
+                '.details p { margin: 10px 0; font-size: 16px; }' +
+                '</style>' +
+                '</head>' +
+                '<body>' +
+                '<div class="container">' +
+                '<h2>Smart ID Card QR Code</h2>' +
+                '<div class="details">' +
+                '<p>Name: <strong>' + name + '</strong></p>' +
+                '<p>Amount: <strong>Rs. ' + amount + '</strong></p>' +
+                '<p>Fine Amount: <strong>Rs. ' + fine + '</strong></p>' +
+                '</div>' +
+                '<img src="' + qrImg + '" alt="QR Code">' +
+                '</div>' +
+                '<script>' +
+                'window.onload = function() { window.print(); }' +
+                '<\/script>' +
+                '</body>' +
+                '</html>'
+            );
+            printWindow.document.close();
+        }
+    </script>
+</body>
+</html>

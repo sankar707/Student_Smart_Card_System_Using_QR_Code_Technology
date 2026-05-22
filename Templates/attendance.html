@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Attendance Sheet</title>
+    <style>
+        table.data {
+            border-collapse: collapse;
+            width: 60%;
+        }
+        table.data, table.data th, table.data td {
+            border: 1px solid black;
+            padding: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Attendance Sheet</h2>
+    {{ table|safe }}
+    <br>
+    <a href="{{ url_for('scan_qr') }}">← Back to Scanner</a>
+</body>
+</html>

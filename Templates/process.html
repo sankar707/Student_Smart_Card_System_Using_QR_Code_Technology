@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>QR Code Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .result-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 90%;
+            max-width: 600px;
+        }
+        
+        h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
+        }
+        
+        .info-section {
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+        
+        .qr-data {
+            font-family: monospace;
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            margin-bottom: 20px;
+            border-left: 4px solid #4CAF50;
+            color: #333;
+        }
+        
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .action-button {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            display: inline-block;
+            text-decoration: none;
+            text-align: center;
+        }
+        
+        .mark-button {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .mark-button:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+        }
+        
+        .payment-button {
+            background-color: #2196F3;
+            color: white;
+        }
+        
+        .payment-button:hover {
+            background-color: #0b7dda;
+            transform: translateY(-2px);
+        }
+        
+        .download-button {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .download-button:hover {
+            background-color: #e68a00;
+            transform: translateY(-2px);
+        }
+        
+        .back-button {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .back-button:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+        }
+        
+        .data-item {
+            margin-bottom: 10px;
+        }
+        
+        .data-label {
+            font-weight: bold;
+            display: inline-block;
+            width: 100px;
+        }
+        
+        .file-list {
+            margin-top: 15px;
+        }
+        
+        .file-item {
+            margin-bottom: 5px;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <div class="result-card">
+        <h2>QR Code Scanned</h2>
+        
+        <div class="info-section">
+            <div class="data-item">
+                <span class="data-label">Name:</span> 
+                <span>{{ name }}</span>
+            </div>
+            <div class="data-item">
+                <span class="data-label">Amount:</span> 
+                <span>{{ amount }}</span>
+            </div>
+            <div class="data-item">
+                <span class="data-label">Fine:</span> 
+                <span>{{ fine }}</span>
+            </div>
+            
+            {% if file_links and file_links|length > 0 %}
+            <div class="data-item">
+                <span class="data-label">Files:</span> 
+                <span>
+                    {% for file in file_links %}
+                        {% if file %}
+                            {{ file }}{% if not loop.last %}, {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                </span>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="qr-data">{{ qr_data }}</div>
+        
+        <div class="button-group">
+            <form action="{{ url_for('mark_attendance') }}" method="POST" style="display:inline;">
+                <input type="hidden" name="name" value="{{ name }}">
+                <button type="submit" class="action-button mark-button">Mark Attendance</button>
+            </form>
+
+            <form action="{{ url_for('payment_page') }}" method="GET" style="display:inline;">
+                <input type="hidden" name="name" value="{{ name }}">
+                <input type="hidden" name="amount" value="{{ amount }}">
+                <input type="hidden" name="fine" value="{{ fine }}">
+                <button type="submit" class="action-button payment-button">Make Payment</button>
+            </form>
+
+            {% if file_links and file_links|length > 0 %}
+            <form action="{{ url_for('download_files') }}" method="POST" style="display:inline;">
+                {% for file in file_links %}
+                    {% if file %}
+                        <input type="hidden" name="file_links" value="{{ file }}">
+                    {% endif %}
+                {% endfor %}
+                <button type="submit" class="action-button download-button">Download Files</button>
+            </form>
+            {% endif %}
+            
+            <a href="{{ url_for('scan_qr') }}" class="action-button back-button">Back to Scanner</a>
+        </div>
+    </div>
+</body>
+</html>
